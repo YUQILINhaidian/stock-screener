@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  # 后端 API 服务
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: stock-screener-api
+    ports:
+      - "8000:8000"
+    environment:
+      # LLM 配置（从宿主机环境变量或 .env 文件读取）
+      - LLM_PROVIDER=${LLM_PROVIDER:-claude}
+      - LLM_API_KEY=${LLM_API_KEY}
+      - LLM_MODEL=${LLM_MODEL}
+      - LLM_BASE_URL=${LLM_BASE_URL}
+      - LLM_TEMPERATURE=${LLM_TEMPERATURE:-0.7}
+      - LLM_MAX_TOKENS=${LLM_MAX_TOKENS:-2000}
+      # 数据库路径（挂载到宿主机）
+      - DATABASE_URL=sqlite:////data/database.db
+      - FUNDAMENTAL_DB_URL=sqlite:////data/fundamental.db
+    volumes:
+      # 挂载数据目录
+      - ${HOME}/.vntrader:/data
+      # 挂载选股结果目录
+      - ${HOME}/.vntrader/screen_results:/app/screen_results
+      - ${HOME}/.vntrader/stock_pools:/app/stock_pools
+      - ${HOME}/.vntrader/charts:/app/charts
+    restart: unless-stopped
+    networks:
+      - stock-screener-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 前端 UI 服务
+  ui:
+    build:
+      context: ./ui
+      dockerfile: Dockerfile
+    container_name: stock-screener-ui
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+    restart: unless-stopped
+    networks:
+      - stock-screener-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  stock-screener-network:
+    driver: bridge
+
+# 可选：如果需要持久化数据，可以使用 volumes
+# volumes:
+#   vntrader-data:
+#     driver: local

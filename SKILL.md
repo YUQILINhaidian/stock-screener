@@ -1,820 +1,169 @@
 ---
 name: stock-screener
-description: This skill should be used when the user asks about "stock screening", "选股", "筛选股票", "火车头策略", "顺向火车轨", "蓝色钻石", "三线红", "圆弧底", "首次涨停", "一线红", "RPS strategy", "股票池", "回测", "策略验证", "backtest", or needs help with screening strong stocks, analyzing RPS values, executing quantitative stock selection strategies, or backtesting strategy signals. Provides comprehensive guidance for stock screening workflows including RPS-based strategies, momentum analysis, portfolio management, and strategy backtesting.
-version: 1.0.0
+description: This skill should be used when the user asks about "stock screening", "选股", "筛选股票", "火车头策略", "顺向火车轨", "蓝色钻石", "三线红", "圆弧底", "首次涨停", "一线红", "RPS strategy", "股票池", "回测", "策略验证", "backtest", "月线反转", "口袋支点", "第二阶段", or needs help with screening strong stocks, analyzing RPS values, executing quantitative stock selection strategies, or backtesting strategy signals.
+version: 2.0.0
 ---
 
-# Stock Screener - 选股策略工具
+# Stock Screener - 量化选股策略工具
 
-Stock Screener 是一个专业的选股策略工具，提供多种经过验证的量化选股策略，帮助用户快速筛选强势股票。
-
-## 核心功能
-
-### 1. 快速筛选强势股
-
-**触发场景**：
-- 用户说："筛选股票"
-- 用户说："帮我选几只好股票"
-- 用户说："运行选股策略"
-- 用户说："找出强势股"
-- 用户说："选股"
-
-**⚠️ 重要：交互式选股流程**
-
-当用户触发选股时，**必须主动询问以下问题**，而不是直接执行：
+Stock Screener 提供多种经过验证的量化选股策略，帮助用户快速筛选强势股票。
 
 ---
 
-### 🔷 步骤1：询问策略选择
+## 何时使用
 
-使用 `preview_ask` 工具询问用户选择哪个策略：
+**触发关键词**：
 
-```
-问题："请选择要执行的选股策略："
-
-选项（推荐度排序）：
-1. 🔥 火车头策略 - MRGC + SXHCG 双策略组合（推荐）
-2. 📈 口袋支点策略 - 陶博士经典买点，成交量突破
-3. 🚀 顺向火车轨3.0 - RPS120+250>185，均线多头
-4. 💎 蓝色钻石策略 - 捕捉第二波上涨机会
-5. 🔴 三线红策略 - RPS纯技术筛选
-6. 🌊 圆弧底策略 - 底部反转信号
-7. ⭐ 首次涨停&一线红 - 涨停突破
-8. 📊 中期调整后选股 - 250日翻倍+调整≤50%
-9. 🎯 月线反转策略 - 趋势反转买点
-10. 🔧 自定义组合 - 根据需求组合条件
-```
+| 类别 | 关键词 |
+|------|--------|
+| 通用 | 选股、筛选股票、找出强势股、股票池 |
+| 策略名 | 火车头、MRGC、SXHCG、顺向火车轨、月线反转、口袋支点、第二阶段 |
+| 技术指标 | 三线红、一线红、RPS、相对强度 |
+| 形态 | 圆弧底、蓝色钻石、底部反转、趋势反转 |
+| 功能 | 回测、策略验证、数据更新 |
 
 ---
 
-### 🔷 步骤2：询问数据更新
-
-选择策略后，**必须询问**：
+## 核心工作流程
 
 ```
-问题："是否需要更新数据到最新？"
-
-选项：
-1. ✅ 是，先更新数据再选股（推荐，耗时约2-5分钟）
-2. ⏭️ 否，使用现有数据直接选股
+用户请求 → 选择策略 → 检查数据 → 执行筛选 → 生成报告
 ```
 
-**数据更新判断逻辑**：
-- 先运行 `python3 ~/check_db_freshness.py` 检查数据新鲜度
-- 如果数据延迟 > 3天，**强烈建议**用户选择更新数据
-- 更新命令：`python3 ~/update_kline_from_baostock.py && python3 ~/update_daily_data.py`
+### 步骤 1：选择策略
+
+当用户触发选股时，使用 `preview_ask` 工具询问：
+
+**问题**："请选择要执行的选股策略："
+
+| 选项 | 策略名 | 推荐度 | 特点 |
+|------|--------|--------|------|
+| 1 | 月线反转策略 | ⭐⭐⭐⭐⭐ | 陶博士三大买点之一，趋势反转 |
+| 2 | 口袋支点策略 | ⭐⭐⭐⭐⭐ | 陶博士三大买点之一，成交量突破 |
+| 3 | 第二阶段策略 | ⭐⭐⭐⭐⭐ | 《股票魔法师》经典，主升浪 |
+| 4 | 火车头策略 | ⭐⭐⭐⭐ | MRGC + SXHCG 双策略组合 |
+| 5 | 接近一年新高 | ⭐⭐⭐⭐ | 最简单有效，突破机会 |
+| 6 | 顺向火车轨3.0 | ⭐⭐⭐⭐ | RPS120+250>185，均线多头 |
+| 7 | 中期调整后选股 | ⭐⭐⭐⭐ | 250日翻倍+调整≤50% |
+| 8 | 三线红策略 | ⭐⭐⭐ | RPS纯技术筛选 |
+| 9 | 蓝色钻石策略 | ⭐⭐⭐ | 捕捉第二波上涨 |
+| 10 | 圆弧底策略 | ⭐⭐⭐ | 底部反转，低频高质量 |
+| 11 | 首次涨停&一线红 | ⭐⭐⭐ | 涨停突破信号 |
 
 ---
 
-### 🔷 步骤3：执行选股
+### 步骤 2：检查数据新鲜度
 
-根据用户选择的策略，执行对应脚本：
+```bash
+python3 ~/.agents/skills/stock-screener/python/check_db_freshness.py
+```
+
+- **数据延迟 ≤ 1天**：直接执行
+- **数据延迟 > 3天**：建议用户先更新数据
+
+---
+
+### 步骤 3：执行策略
 
 | 策略 | 执行命令 |
-|------|---------|
-| 火车头策略 | `python3 ~/train_daily_advanced_strategy.py` |
-| 口袋支点策略 | `python3 ~/pocket_pivot_strategy.py` |
-| 顺向火车轨3.0 | `python3 ~/sxhcg3_strategy.py` |
-| 蓝色钻石策略 | `python3 ~/blue_diamond_strategy.py` |
-| 三线红策略 | `python3 ~/screen_three_line_red.py` |
-| 圆弧底策略 | `python3 ~/arc_bottom_strategy.py` |
-| 首次涨停&一线红 | `python3 ~/first_limit_up_strategy.py` |
-| 中期调整后选股 | `python3 ~/mid_term_adjustment_strategy.py` |
-| 月线反转策略 | `python3 ~/screen_monthly_reversal.py` |
+|------|----------|
+| 月线反转 | `python3 ~/.agents/skills/stock-screener/python/screen_monthly_reversal.py` |
+| 口袋支点 | `python3 ~/.agents/skills/stock-screener/python/screen_pocket_pivot.py` |
+| 第二阶段 | `python3 ~/.agents/skills/stock-screener/python/screen_stage2.py` |
+| 火车头策略 | `python3 ~/.agents/skills/stock-screener/python/train_daily_advanced_strategy.py` |
+| 接近一年新高 | `python3 ~/.agents/skills/stock-screener/python/screen_near_year_high.py` |
+| 顺向火车轨3.0 | `python3 ~/.agents/skills/stock-screener/python/sxhcg3_strategy.py` |
+| 中期调整后选股 | `python3 ~/.agents/skills/stock-screener/python/mid_term_adjustment_strategy.py` |
+| 三线红策略 | `python3 ~/.agents/skills/stock-screener/python/screen_three_line_red.py` |
+| 蓝色钻石策略 | `python3 ~/.agents/skills/stock-screener/python/blue_diamond_strategy.py` |
+| 圆弧底策略 | `python3 ~/.agents/skills/stock-screener/python/arc_bottom_strategy.py` |
+| 首次涨停&一线红 | `python3 ~/.agents/skills/stock-screener/python/first_limit_up_strategy.py` |
 
 ---
 
-**筛选流程详解**：
+### 步骤 4：生成报告
 
-1. **询问策略类型**
-   
-   系统支持以下策略：
-   - **月线反转策略（强烈推荐）** - 陶博士三大核心买点之一，捕捉趋势反转
-   - **口袋支点策略** - 陶博士经典买点，成交量突破信号
-   - **第二阶段策略** - 《股票魔法师》经典策略，捕捉主升浪
-   - **接近一年新高策略** - 最简单有效，捕捉突破机会
-   - **火车头策略** - MRGC + SXHCG 双策略组合，验证有效
-   - **顺向火车轨3.0** - RPS120+250>185，均线多头，回撤控制
-   - **中期调整后选股** - 250日翻倍+调整≤50%+RPS一线红
-   - **三线红策略** - RPS纯技术筛选，最简单直接
-   - **蓝色钻石策略** - 捕捉第二波上涨机会
-   - **圆弧底策略** - 多重综合均线确认底部反转，低频高质量信号
-   - **首次涨停&一线红策略** - 捕捉强势股首次涨停突破
-   - **自定义组合** - 根据需求组合多个条件
+执行完成后，结果保存在：
+- **CSV结果**: `~/.vntrader/screen_results/<策略名>_YYYYMMDD.csv`
+- **分析报告**: 自动生成HTML报告
 
-2. **确认数据新鲜度**
-   
-   执行前检查数据库数据是否为最新：
-   ```bash
-   # 检查数据最新时间
-   python3 ~/check_db_freshness.py
-   ```
-   
-   - 如果数据延迟 > 3天，建议先更新数据
-   - 更新命令：`python3 ~/update_kline_from_baostock.py && python3 ~/update_daily_data.py`
+---
 
-3. **执行筛选**
-   
-   ```bash
-   # 月线反转策略（强烈推荐）
-   python3 ~/screen_monthly_reversal.py
-   
-   # 口袋支点策略
-   python3 ~/screen_pocket_pivot.py
-   
-   # 第二阶段策略
-   python3 ~/screen_stage2.py
-   
-   # 接近一年新高策略
-   python3 ~/screen_near_year_high.py
-   
-   # 火车头策略
-   python3 ~/train_daily_advanced_strategy.py
-   
-   # 三线红策略
-   python3 ~/screen_three_line_red.py
-   
-   # 蓝色钻石策略
-   python3 ~/blue_diamond_strategy.py
-   
-   # 圆弧底策略
-   python3 ~/arc_bottom_strategy.py
-   
-   # 首次涨停&一线红策略
-   python3 ~/first_limit_up_strategy.py
-   
-   # 顺向火车轨3.0策略
-   python3 ~/sxhcg3_strategy.py
-   
-   # 中期调整后选股策略
-   python3 ~/mid_term_adjustment_strategy.py
-   ```
+## 数据更新流程
 
-4. **分析结果**
-   
-   筛选完成后自动运行分析：
-   ```bash
-   python3 ~/analyze_train_stocks.py
-   ```
-
-5. **生成报告**
-   
-   输出包括：
-   - 符合条件的股票列表
-   - Top 15 推荐股票（带综合评分）
-   - 最强势股票列表
-   - 创新高股票列表
-   - K线图索引页面
-
-### 2. 策略详解
-
-系统支持以下策略（按推荐程度排序）：
-
-| 策略 | 适用场景 | 难度 | 推荐度 |
-|------|---------|------|--------|
-| **月线反转策略** | 中长期投资、捕捉趋势反转 | ⭐⭐⭐ 进阶 | ⭐⭐⭐⭐⭐ |
-| **口袋支点策略** | 中短期投资、捕捉突破买点 | ⭐⭐ 中等 | ⭐⭐⭐⭐⭐ |
-| **第二阶段策略** | 中长期投资、捕捉主升浪 | ⭐⭐ 中等 | ⭐⭐⭐⭐⭐ |
-| **接近一年新高** | 中长期投资、捕捉突破机会 | ⭐ 简单 | ⭐⭐⭐⭐⭐ |
-| **火车头策略** | 中长期投资、波段交易 | ⭐⭐⭐ 中等 | ⭐⭐⭐⭐ |
-| **顺向火车轨3.0** | 中长期投资、趋势跟踪 | ⭐⭐ 中等 | ⭐⭐⭐⭐ |
-| **中期调整后选股** | 中长期投资、调整后买入 | ⭐⭐ 中等 | ⭐⭐⭐⭐ |
-| **三线红策略** | 中长期投资、持续强势 | ⭐ 简单 | ⭐⭐⭐ |
-| **蓝色钻石策略** | 中期波段、调整买入 | ⭐⭐ 进阶 | ⭐⭐⭐ |
-
-#### 月线反转策略（强烈推荐）
-
-**适用场景**：中长期投资、捕捉趋势反转、底部建仓
-
-**策略来源**：陶博士2006改进版月线反转6.5
-
-**核心理论**：
-月线反转是一种捕捉股票从底部区域开始反转上升的策略。当股票经过长期调整后，月线级别的趋势开始反转向上，通常预示着一轮较大的上涨行情。
-
-**筛选条件（7个要素）**：
-1. **RPS强度**：RPS50>87 OR RPS120>90
-2. **结构紧凑**：50日低点>200日低点，或30日低点>120日低点
-3. **创新高**：10天内曾创80日新高，或当天创50日新高
-4. **均线支撑**：收盘价站上20日线和200日线
-5. **均线靠近**：45天内至少有一次低于200日线，但已站上3天以上
-6. **均线趋势**：120日线或200日线呈上升趋势
-7. **价格位置**：接近120日或250日新高
-
-**执行命令**：
-```bash
-python3 ~/screen_monthly_reversal.py
-```
-
-**策略优势**：
-- 捕捉趋势反转的早期信号
-- 结合RPS确保相对强度
-- 结构紧凑条件过滤弱势股
-- 陶博士三大核心买点之一
-
-**使用建议**：
-- 关注RPS较高的股票
-- 结合成交量变化确认反转
-- 设置止损位（-8%到-10%）
-- 分批建仓降低风险
-
-#### 口袋支点策略（强烈推荐）
-
-**适用场景**：中短期投资、捕捉突破买点、趋势跟踪
-
-**策略来源**：《像欧奈尔信徒一样交易》Gil Morales & Dr. Chris Kacher，陶博士改进版
-
-**核心理论**：
-口袋支点是一种成交量突破信号，通常出现在股票突破前的最后调整阶段。当股票在底部区域出现异常放量，但价格并未大幅上涨时，往往预示着主力资金正在吸筹。
-
-**筛选条件（9个要素）**：
-1. **RPS强度**：RPS250>=87 OR RPS120>=90 OR RPS50>=90
-2. **成交量放大**：创10日最高成交金额，或当日涨幅>9.9%，或成交金额是10天平均的2倍以上
-3. **均线突破**：创90/100/120日新高，且均线呈上升趋势
-4. **结构紧凑**：15日内最低价不是50日内最低价
-5. **调整幅度限制**：阶段最大下跌不超过46%
-6. **结构紧凑条件**：满足特定的价格结构条件
-7. **涨幅要求**：当日涨幅>=5%
-8. **换手率稳定**：两天平均换手不高于15%
-9. **价格偏离限制**：昨日最低价偏离50日线<24%，或偏离10日线<3%
-
-**执行命令**：
-```bash
-python3 ~/screen_pocket_pivot.py
-```
-
-**策略优势**：
-- 捕捉主力资金吸筹信号
-- 成交量是关键确认指标
-- 适合捕捉主升浪起点
-- 陶博士三大核心买点之一
-
-**使用建议**：
-- 重点关注成交量放大的股票
-- 结合第二阶段策略使用效果更佳
-- 关注换手率和价格偏离度
-- 设置止损位（-5%到-8%）
-
-#### 第二阶段策略（强烈推荐）
-
-**适用场景**：中长期投资、捕捉主升浪、趋势跟踪
-
-**策略来源**：《股票魔法师》Mark Minervini
-
-**核心理论 - 四阶段模型**：
-- 第一阶段——忽略时期：巩固
-- 第二阶段——突围时期：加速（最佳买入时机）
-- 第三阶段——到顶时期：分配利润
-- 第四阶段——衰败时期：投降
-
-**筛选条件（8条标准）**：
-1. 股价高于150日和200日均线
-2. 150日均线高于200日均线
-3. 200日均线上涨至少1个月（最好4-5个月）
-4. 50日均线高于150日和200日均线
-5. 目前股价比52周内最低点至少高出25%
-6. 目前股价处在其52周高点的25%以内
-7. 相对实力（RS/RPS）排名不低于70（最好90左右）
-8. 因股价上涨突破前期底部，现价格应在50日均线之上
-
-**执行命令**：
-```bash
-python3 ~/screen_stage2.py
-```
-
-**策略优势**：
-- 经典的趋势跟踪策略
-- 捕捉股票主升浪
-- 避开下跌趋势的股票
-- 结合基本面和技术面
-
-**使用建议**：
-- 重点关注第二阶段初期进入的股票
-- 结合成交量分析确认趋势
-- 关注净利润增长的股票
-- 设置止损位（-8%到-10%）
-
-#### 接近一年新高策略（推荐）
-
-**适用场景**：中长期投资、捕捉突破机会、趋势跟踪
-
-**核心公式**：
-```
-CLOSE/HHV(HIGH,250) > 0.9
-```
-即：今日收盘价 / 过去250个交易日最高价 > 0.9
-
-**筛选条件**：
-- 股价在一年新高价格的90%以上
-- 意味着股票接近或正在突破一年高点
-
-**执行命令**：
-```bash
-python3 ~/screen_near_year_high.py
-```
-
-**策略优势**：
-- 最简单的策略，逻辑清晰
-- 捕捉强势股突破机会
-- 适合趋势跟踪
-- 可与RPS等其他指标组合
-
-**使用建议**：
-- 在"基金持股3%+北向持股三千万"板块中筛选
-- 结合K线图逐个分析
-- 特别关注净利润断层的股票
-
-**历史表现**：
-- 陶博士推荐策略
-- 适合捕捉牛股主升浪
-
-#### 火车头策略（MRGC + SXHCG）
-
-**适用场景**：中长期投资、波段交易
-
-**MRGC（美人国）子策略**：
-- XG1: 创新高 + 高RPS（最激进）
-- XG2: 强势位置 + 超高RPS
-- XG3: 次强势 + 极高RPS
-- XG4: 低回撤 + 高位 + 高RPS（最稳健）
-
-**SXHCG（双线红）策略**：
-- RPS120 + RPS250 > 185
-- 均线多头排列
-- 换手率 < 15%
-- 适合波段操作
-
-**历史表现**（2026-02-26测试）：
-- 筛选结果：41只股票
-- 平均RPS和：188.8
-- 建议配置：Top 5-10只股票
-
-#### 顺向火车轨3.0策略
-
-**适用场景**：中长期投资、趋势跟踪、捕捉强势股持续上涨
-
-**策略来源**：通达信公式翻译，顺向火车轨3.0版本
-
-**核心理论**：
-通过RPS强度、均线支撑、回撤控制、均线趋势四个维度筛选强势股，捕捉处于上涨趋势中且结构稳健的股票。
-
-**筛选条件（5个要素）**：
-
-1. **RPS强度（SXHCG1）**
-   - RPS120 + RPS250 > 185
-   - 确保股票相对强度高
-
-2. **价格位置（SXHCG2）**
-   - 价格 > MA20
-   - 30天内至少25天 > MA250 和 MA200
-   - 价格稳定性良好
-
-3. **回撤控制（SXHCG3）**
-   - 回撤幅度 ≤ 25%
-   - 期间无超过25%的回撤
-   - 价格在250日高点的80%以上
-
-4. **均线趋势（SXHCG4）**
-   - MA10 和 MA20 向上
-   - MA10 ≥ MA20
-   - 均线多头排列
-
-5. **换手率**
-   - 日换手率 < 10%
-   - 避免过度投机
-
-**执行命令**：
-```bash
-python3 ~/sxhcg3_strategy.py
-```
-
-**历史表现**（2026-03-11测试）：
-- 筛选结果：143只股票
-- 平均RPS和：197.4
-- 建议配置：Top 10-20只股票
-
-**策略优势**：
-- 条件严格，筛选质量高
-- 回撤控制有效
-- 均线趋势确认
-- 适合趋势跟踪
-
-**使用建议**：
-- 优先选择RPS和较高的股票
-- 关注回撤幅度小的股票
-- 结合成交量确认
-- 分批建仓
-
-#### 中期调整后选股策略
-
-**适用场景**：中长期投资、捕捉强势股调整后的买点
-
-**策略来源**：通达信公式翻译
-
-**核心理论**：
-通过区间涨幅、中期调整幅度和RPS一线红三个维度筛选强势股中期调整后的买点机会。
-
-**筛选条件（3个要素）**：
-
-1. **区间涨幅（N=250天）**
-   - 250天内涨幅超过100%（即翻倍）
-   - 确保股票是前期强势股
-
-2. **中期调整幅度（M=120天）**
-   - 120天内最大调整幅度≤50%
-   - 调整幅度 = (最高价 - 最低价) / 最高价
-   - 确保调整不过度
-
-3. **RPS一线红**
-   - RPS50 ≥ 90 OR RPS120 ≥ 90 OR RPS250 ≥ 90
-   - 至少一条RPS线满足要求
-
-**执行命令**：
-```bash
-python3 ~/mid_term_adjustment_strategy.py
-```
-
-**历史表现**（2026-03-11测试）：
-- 筛选结果：178只股票
-- 平均涨幅：153.5%
-- 平均调整：41.9%
-- 平均最大RPS：94.1
-- 建议配置：Top 10-20只股票
-
-**策略优势**：
-- 捕捉强势股调整后的买点
-- 翻倍股说明有资金关注
-- 调整幅度限制降低风险
-- RPS确认相对强度
-
-**使用建议**：
-- 优先选择调整幅度较小的股票
-- 关注多线红（2-3线）的股票
-- 结合成交量确认底部
-- 分批建仓
-
-#### 三线红策略
-
-**适用场景**：中长期投资、追求持续强势
-
-**筛选条件**：
-- RPS5 > 90
-- RPS120 > 90
-- RPS250 > 90
-
-**特点**：
-- 最简单的策略
-- 纯技术面筛选
-- 适合持续跟踪强势股
-
-#### 蓝色钻石策略
-
-**适用场景**：中期波段、捕捉第二波上涨
-
-**核心条件**：
-- RPS20/50 > 95（不要求120/250）
-- 价格靠近20日均线
-- 创新高或接近新高
-- 换手率 < 10%
-
-**特点**：
-- 不追逐第一波上涨
-- 寻找调整后的买入机会
-- 风险相对较低
-
-#### 圆弧底策略
-
-**适用场景**：中长期投资、底部反转建仓
-
-**策略来源**：通达信公式翻译，基于多重综合均线的底部形态识别
-
-**核心理论**：
-通过构建四档综合均线（短/中短/中/长周期），识别短周期线在底部蛰伏30天后首次突破中周期线的形态，配合均线收敛条件确认圆弧底完成。
-
-**核心公式（通达信原式）**：
-```
-AA:=(C*2+H+L+O)/5
-条件2:=(EMA(AA,4)+MA(AA,8)+MA(AA,16))/3   ← 短周期综合线
-条件4:=(EMA(AA,13)+MA(AA,26)+MA(AA,52))/3  ← 中周期综合线
-条件6:=(EMA(AA,24)+MA(AA,48)+MA(AA,96))/3  ← 长周期综合线
-圆弧底:LONGCROSS(条件2,条件4,30)            ← 短线上穿中线（蛰伏30天）
-       AND (条件6-条件4)/条件4<0.05         ← 长中线收敛
-       AND 条件20<条件6                     ← 短中期仍低于长期线
-```
-
-**三个触发条件**：
-1. **LONGCROSS(30)**：短周期线在底部持续30天低于中周期线，今天首次上穿
-2. **长中线收敛**：长周期线与中周期线差距 < 5%（底部区域确认）
-3. **位置确认**：短中期最大值仍低于长周期线（尚未脱离底部）
-
-**执行命令**：
-```bash
-python3 ~/arc_bottom_strategy.py
-```
-
-**信号特点**：
-- **稀少但高质量**：全市场每日触发仅2-5只，是真正的底部反转信号
-- **领先性强**：在价格脱离底部前发出预警
-- **适合建仓**：底部区域风险小、潜在收益大
-
-**使用建议**：
-- 每日收盘后运行，捕捉刚触发信号的股票
-- 结合K线图确认圆弧底形态
-- 可配合RPS筛选（优选RPS120>80的标的）
-- 设置止损位（-5%到-8%）
-
-#### 首次涨停&一线红策略
-
-**适用场景**：短线追涨、捕捉涨停突破
-
-**策略来源**：通达信公式翻译，基于RPS强度+涨停+价格位置的综合信号
-
-**核心条件**：
-1. **RPS强度**：RPS50/120/250 任一 ≥ 90（强势股特征）
-2. **涨停板**：当日涨停
-   - 创业板/科创板：涨幅 ≥ 20%
-   - ST板块：涨幅 ≥ 5%
-   - 主板：涨幅 ≥ 10%
-3. **一线红**：最高价 ≥ 250日最高价 × 50%（处于相对高位）
-4. **首次触发**：过去20天内首次满足条件（捕捉首次涨停突破）
-
-**执行命令**：
-```bash
-python3 ~/first_limit_up_strategy.py
-```
-
-**信号特点**：
-- 每日触发 20-50 只
-- 捕捉强势股首次涨停突破信号
-- 适合短线追涨策略
-- 需要快速反应，次日观察
-
-**使用建议**：
-- 当日筛选后，次日开盘观察
-- 重点关注RPS较高的股票
-- 设置止损位（-5%）
-- 控制仓位，不宜重仓追涨
-
-### 3. 股票池管理
-
-**创建股票池**：
-```bash
-python3 ~/stock_pool_tracker.py create --name my_pool --desc "我的自选股"
-```
-
-**更新价格跟踪**：
-```bash
-python3 ~/stock_pool_tracker.py update --name my_pool
-```
-
-**查看表现**：
-```bash
-python3 ~/stock_pool_tracker.py show --name my_pool
-```
-
-**生成报告**：
-```bash
-python3 ~/stock_pool_tracker.py report --name my_pool
-```
-
-### 4. 数据更新
-
-**完整更新流程**：
 ```bash
 # 1. 更新K线数据
-python3 ~/update_kline_from_baostock.py
+python3 ~/.agents/skills/stock-screener/python/update_kline_from_baostock.py
 
-# 2. 重新计算RPS
-python3 ~/update_daily_data.py
-
-# 3. 运行策略筛选
-python3 ~/train_daily_advanced_strategy.py
-
-# 4. 分析结果
-python3 ~/analyze_train_stocks.py
+# 2. 更新RPS数据
+python3 ~/.agents/skills/stock-screener/python/update_daily_data.py
 ```
 
-**建议更新时间**：
-- 每天收盘后 17:00-18:00
-- 或使用定时任务自动更新
+**建议更新时间**：每个交易日收盘后 17:00-18:00
 
-### 5. 可视化分析
+---
 
-**查看K线图**：
-```bash
-# 生成K线图
-python3 ~/generate_kline_charts.py
+## 策略详解
 
-# 打开索引页面
-open ~/.vntrader/charts/three_line_red/index.html
-```
+| 策略 | 详解文档 |
+|------|----------|
+| 月线反转 | [monthly-reversal.md](references/strategies/monthly-reversal.md) |
+| 口袋支点 | [pocket-pivot.md](references/strategies/pocket-pivot.md) |
+| 第二阶段 | [stage2.md](references/strategies/stage2.md) |
+| 其他策略 | [references/strategies/](references/strategies/) |
 
-**RPS排名报告**：
-```bash
-# 生成HTML报告
-python3 ~/enhanced_rps_viewer.py
+---
 
-# 打开报告
-open ~/.vntrader/reports/rps_fundamental_report_*.html
-```
+## 风险管理
 
-### 6. 策略汇总分析
+### 仓位控制
+- **单只股票仓位**：≤ 10%
+- **总仓位**：50-70%（根据市场环境调整）
+- **股票数量**：5-10只分散投资
 
-**功能**：对不同策略筛选出来的结果给出筛选指标明细，并生成HTML页面展示。
+### 止损设置
+| 策略类型 | 止损位 |
+|----------|--------|
+| 长期策略 | -8% 到 -10% |
+| 中期策略 | -5% 到 -8% |
+| 短期策略 | -3% 到 -5% |
 
-**查看策略汇总**：
-```bash
-# 查看所有策略汇总
-python3 ~/strategy_summary.py
-
-# 查看单个策略
-python3 ~/strategy_summary.py --strategy pocket_pivot
-```
-
-**生成HTML报告**：
-```bash
-# 生成HTML汇总报告
-python3 ~/strategy_summary.py --html
-
-# 打开报告
-open ~/.vntrader/strategy_summary/summary_*.html
-```
-
-**生成K线图**：
-```bash
-# 为所有策略结果生成K线图
-python3 ~/strategy_summary.py --generate-charts
-
-# 为单个策略生成K线图
-python3 ~/strategy_summary.py -s first_limit_up -c
-```
-
-**支持的策略**：
-- `pocket_pivot` - 口袋支点策略
-- `train_advanced` - 火车头高级策略
-- `arc_bottom` - 圆弧底策略
-- `first_limit_up` - 首次涨停&一线红
-- `blue_diamond` - 蓝色钻石策略
-
-**输出文件位置**：
-```
-~/.vntrader/strategy_summary/
-├── summary_YYYYMMDD_HHMMSS.html  # HTML汇总报告
-├── pocket_pivot/                   # 口袋支点策略
-│   └── charts/                     # K线图
-├── train_advanced/                 # 火车头高级策略
-│   └── charts/
-├── arc_bottom/                     # 圆弧底策略
-│   └── charts/
-└── first_limit_up/                 # 首次涨停&一线红
-    └── charts/
-```
-
-### 7. 策略回测
-
-**功能**：使用VNPy专业回测引擎对策略筛选信号进行历史回溯分析。
-
-**VNPy回测引擎**：
-```bash
-# 使用最新信号文件回测
-python3 ~/vnpy_backtest_signals.py --days 5 --max 10
-
-# 指定CSV文件回测
-python3 ~/vnpy_backtest_signals.py --file ~/.vntrader/train_daily_advanced_20260309.csv --days 5
-```
-
-**简单回测工具**：
-```bash
-# 回测指定文件
-python3 ~/strategy_backtest.py --file ~/.vntrader/train_daily_advanced_20260309.csv
-
-# 回测所有策略
-python3 ~/strategy_backtest.py --all
-```
-
-**回测参数说明**：
-| 参数 | 说明 | 默认值 |
-|------|------|--------|
-| --days | 持仓天数 | 5 |
-| --max | 最大回测股票数 | 全部 |
-| --file | 指定信号文件 | 最新文件 |
-| --hold-days | 持仓天数（简单回测） | 20 |
-| --stop-loss | 止损百分比 | -8% |
-
-**回测输出内容**：
-- 总收益率 / 年化收益
-- 最大回撤
-- Sharpe Ratio（夏普比率）
-- 胜率 / 交易次数
-- 个股收益明细
-
-**注意事项**：
-- 信号日期需要至少有 `hold_days` 天后的数据
-- 建议使用历史信号文件进行回测
-- VNPy回测包含手续费（0.03%）和滑点（0.01元）
-
-## 使用示例
-
-### 示例 1：快速筛选强势股
-
-**用户**：帮我筛选几只强势股
-
-**流程**：
-1. 检查数据新鲜度
-2. 运行火车头策略
-3. 分析Top 15推荐
-4. 生成K线图
-5. 创建股票池跟踪
-
-### 示例 2：验证策略有效性
-
-**用户**：这个策略有效吗？
-
-**流程**：
-1. 运行策略筛选
-2. 创建股票池
-3. 等待3-5个交易日
-4. 更新价格查看收益
-5. 统计胜率和平均收益
-
-### 示例 3：组合使用多策略
-
-**用户**：用多个策略组合筛选
-
-**流程**：
-1. 运行火车头策略
-2. 运行三线红策略
-3. 找出同时符合多个策略的股票
-4. 重点关注这些股票
-
-## 最佳实践
-
-### 1. 数据管理
-- 每日收盘后更新数据
-- 定期检查数据完整性
-- 备份重要的筛选结果
-
-### 2. 策略选择
-- **新手**：三线红策略（最简单）
-- **进阶**：火车头MRGC策略
-- **高级**：多策略组合筛选
-
-### 3. 风险控制
-- 单只股票仓位 ≤ 10%
-- 设置止损线（-5%）
-- 分散投资（5-10只股票）
-- 关注市场整体环境
-
-### 4. 持续跟踪
-- 创建股票池跟踪表现
-- 定期重新筛选
-- 对比历史表现
-
-## 注意事项
-
-1. **数据延迟**：当日数据通常次日可用
-2. **市场环境**：弱势市场中筛选结果会减少
-3. **RPS计算**：需要足够的历史数据（至少250天）
-4. **换手率数据**：部分股票可能缺少换手率数据
-5. **风险提示**：历史表现不代表未来收益
-
-## 支持文件
-
-详细信息请查阅：
-- **`references/monthly-reversal-guide.md`** - 月线反转策略详解（强烈推荐）陶博士三大买点之一
-- **`references/pocket-pivot-guide.md`** - 口袋支点策略详解（强烈推荐）陶博士三大买点之一
-- **`references/stage2-guide.md`** - 第二阶段策略详解《股票魔法师》
-- **`references/near-high-guide.md`** - 接近一年新高策略详解
-- **`references/train-strategy-guide.md`** - 火车头策略详细说明
-- **`references/strategy-comparison.md`** - 策略对比分析
-- **`references/arc-bottom-guide.md`** - 圆弧底策略详解
-- **`references/first-limit-up-guide.md`** - 首次涨停&一线红策略详解
-- **`references/strategy-summary-guide.md`** - 策略汇总分析功能说明
-- **`references/vnpy-backtest-guide.md`** - VNPy策略回测指南
-
-执行脚本位于 `scripts/`：
-- **`scripts/monthly-reversal-screen.sh`** - 月线反转筛选脚本
-- **`scripts/pocket-pivot-screen.sh`** - 口袋支点筛选脚本
-- **`scripts/stage2-screen.sh`** - 第二阶段筛选脚本
-- **`scripts/near-year-high.sh`** - 接近一年新高筛选脚本
-- **`scripts/quick-screen.sh`** - 快速筛选脚本
-- **`scripts/arc-bottom-screen.sh`** - 圆弧底筛选脚本
-- **`scripts/first-limit-up-screen.sh`** - 首次涨停&一线红筛选脚本
-- **`scripts/strategy-summary.sh`** - 策略汇总分析脚本
-- **`scripts/vnpy-backtest.sh`** - VNPy策略回测脚本
+---
 
 ## 常见问题
 
 **Q: 筛选结果为0怎么办？**
-A: 检查数据是否最新，或尝试放宽筛选条件
+A: 检查数据是否最新，或尝试放宽筛选条件（弱市中结果会减少）
 
 **Q: 多久更新一次数据？**
-A: 建议每天收盘后更新一次
+A: 建议每个交易日收盘后更新一次
 
 **Q: 如何选择策略？**
-A: 根据投资风格选择，火车头策略适合大多数情况
+A: 新手推荐月线反转或口袋支点，进阶可组合多策略
 
 **Q: 筛选出的股票什么时候买？**
-A: 建议次日开盘观察，适合的价格买入
+A: 建议次日开盘观察，确认信号有效后介入
 
-**Q: 需要设置止损吗？**
-A: 强烈建议设置止损（-3%到-5%）
+---
+
+## 相关文档
+
+- **快速开始**: [examples/quick-start.md](examples/quick-start.md)
+- **日常工作流**: [examples/daily-workflow.md](examples/daily-workflow.md)
+- **策略对比**: [references/strategy-comparison.md](references/strategy-comparison.md)
+- **回测指南**: [references/backtest-guide.md](references/backtest-guide.md)
+
+---
+
+## 目录结构
+
+```
+stock-screener/
+├── SKILL.md                    # 本文档（入口）
+├── README.md                   # 项目说明
+├── references/strategies/       # 策略详解文档
+├── examples/                   # 使用示例
+├── scripts/                    # 执行脚本
+├── python/                     # Python源码
+└── archive/                    # 历史文档
+```

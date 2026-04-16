@@ -1,0 +1,6 @@
+[2026-04-10T02:24:21.713Z] GET http://localhost:8765/monthly_reversal_pool_dashboard.html → 200 (14ms, 43977B)
+[2026-04-10T02:24:21.736Z] GET https://cdn.tailwindcss.com/ → 302 (521ms, ?B)
+[2026-04-10T02:24:22.258Z] GET https://cdn.tailwindcss.com/3.4.17 → pending (?ms, ?B)
+[2026-04-10T02:24:26.281Z] GET http://localhost:8766/monthly_reversal_pool_dashboard.html → 200 (3ms, 43977B)
+[2026-04-10T02:24:26.286Z] GET https://cdn.tailwindcss.com/ → 302 (1ms, ?B)
+[2026-04-10T02:24:26.287Z] GET https://cdn.tailwindcss.com/3.4.17 → 200 (5ms, 407279B)

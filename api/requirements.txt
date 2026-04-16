@@ -1,0 +1,45 @@
+# FastAPI 核心依赖
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+pydantic==2.5.3
+pydantic-settings==2.1.0
+
+# WebSocket 支持
+websockets==12.0
+python-multipart==0.0.6
+
+# 数据处理
+pandas==2.1.4
+numpy==1.26.3
+
+# 数据库
+aiosqlite==0.19.0
+
+# Redis（可选，用于缓存）
+redis==5.0.1
+
+# HTTP 客户端
+httpx==0.26.0
+requests==2.31.0
+
+# AI / Claude API
+anthropic==0.18.1
+
+# 数据获取
+akshare==1.13.28
+
+# 回测（VNPy）
+vnpy==3.9.0
+vnpy-ctastrategy==1.0.3
+
+# 图表生成
+matplotlib==3.8.2
+mplfinance==0.12.10b0
+
+# 工具类
+python-dateutil==2.8.2
+pytz==2023.3
+
+# 开发工具
+pytest==7.4.3
+pytest-asyncio==0.23.2
