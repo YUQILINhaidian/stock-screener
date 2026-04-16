@@ -18,6 +18,7 @@ import json
 DB_PATH = Path.home() / '.vntrader' / 'database.db'
 OUTPUT_DIR = Path.home() / '.vntrader' / 'screen_results'
 NAMES_CACHE = Path.home() / '.vntrader' / 'stock_names.json'
+INDUSTRY_CACHE = Path.home() / '.vntrader' / 'stock_industries.json'
 
 def load_stock_names():
     """加载股票名称缓存"""
@@ -37,6 +38,19 @@ def get_stock_name(symbol, names_cache):
     if symbol in names_cache:
         return names_cache[symbol]
     return symbol
+
+def load_industry_cache():
+    """加载行业信息缓存"""
+    if INDUSTRY_CACHE.exists():
+        with open(INDUSTRY_CACHE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    return {}
+
+def get_stock_industry(symbol, industry_cache):
+    """获取股票行业"""
+    if symbol in industry_cache:
+        return industry_cache[symbol].get('industry', '')
+    return ''
 
 def get_all_stocks(conn):
     """获取所有A股股票代码"""
@@ -244,6 +258,7 @@ def screen_monthly_reversal():
     
     conn = sqlite3.connect(DB_PATH)
     names_cache = load_stock_names()
+    industry_cache = load_industry_cache()
     
     stocks = get_all_stocks(conn)
     print(f"共找到 {len(stocks)} 只股票")
@@ -262,11 +277,13 @@ def screen_monthly_reversal():
         
         if is_reversal:
             name = get_stock_name(symbol, names_cache)
+            industry = get_stock_industry(symbol, industry_cache)
             latest = df.iloc[-1]
             
             results.append({
                 'symbol': symbol,
                 'name': name,
+                'industry': industry,
                 'exchange': exchange,
                 'close': latest['close'],
                 'high_250': df['high'].iloc[-250:].max(),
@@ -291,7 +308,7 @@ def screen_monthly_reversal():
         date_str = datetime.now().strftime('%Y%m%d')
         output_file = OUTPUT_DIR / f'monthly_reversal_{date_str}.csv'
         
-        output_cols = ['symbol', 'name', 'exchange', 'close', 'high_250', 
+        output_cols = ['symbol', 'name', 'industry', 'exchange', 'close', 'high_250', 
                        'ratio_30_120', 'volume', 'turnover', 'trade_date']
         df_results[output_cols].to_csv(output_file, index=False, encoding='utf-8-sig')
         
@@ -300,11 +317,12 @@ def screen_monthly_reversal():
         print("\n" + "=" * 80)
         print("Top 20 股票:")
         print("=" * 80)
-        print(f"{'代码':<8} {'名称':<12} {'收盘价':>8} {'30/120比':>8} {'成交额':>12}")
-        print("-" * 60)
+        print(f"{'代码':<8} {'名称':<10} {'行业':<12} {'收盘价':>8} {'30/120比':>8} {'成交额':>12}")
+        print("-" * 70)
         
         for _, row in df_results.head(20).iterrows():
-            print(f"{row['symbol']:<8} {row['name']:<12} {row['close']:>8.2f} "
+            industry = str(row.get('industry', ''))[:10] if row.get('industry') else ''
+            print(f"{row['symbol']:<8} {row['name']:<10} {industry:<12} {row['close']:>8.2f} "
                   f"{row['ratio_30_120']:>7.2f} {row['turnover']:>12.0f}")
         
         return df_results
