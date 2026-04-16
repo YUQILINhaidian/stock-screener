@@ -33,9 +33,9 @@ def save_stock_names(names):
 
 def get_stock_name(symbol, names_cache):
     """获取股票名称"""
-    key = f"股票.{symbol}"
-    if key in names_cache:
-        return names_cache[key]
+    # 直接用symbol作为key查找
+    if symbol in names_cache:
+        return names_cache[symbol]
     return symbol
 
 def get_all_stocks(conn):
