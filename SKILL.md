@@ -105,6 +105,33 @@ python3 ~/.agents/skills/stock-screener/python/update_daily_data.py
 
 ---
 
+## 策略回测
+
+### 老鸭头策略回测
+
+```bash
+# 10天持仓周期回测
+python3 ~/.agents/skills/stock-screener/python/backtest_old_duck_head.py \
+  --holding-period 10 \
+  --sample-rate 0.2 \
+  --max-stocks 200
+
+# 20天持仓周期回测
+python3 ~/.agents/skills/stock-screener/python/backtest_old_duck_head.py \
+  --holding-period 20 \
+  --sample-rate 0.2 \
+  --max-stocks 200
+```
+
+**回测结果** (2023-2026年, 131个信号):
+- **10天持仓**: 成功率49.6%, 平均收益+0.32%
+- **20天持仓**: 成功率50.0%, 平均收益+1.07%
+- **结论**: 当前参数胜率偏低,建议提高成交量倍数至1.5倍,结合RPS筛选
+
+详见: [老鸭头回测报告](references/strategies/old-duck-head.md#十一历史回测结果-)
+
+---
+
 ## 策略详解
 
 | 策略 | 详解文档 |
