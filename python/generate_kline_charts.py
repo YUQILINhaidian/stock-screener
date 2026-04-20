@@ -80,6 +80,11 @@ STRATEGY_CONFIG = {
         'name': '中期调整后选股策略',
         'file_pattern': 'mid_term_adjustment_*.csv',
         'default_dir': 'mid_term_adjustment'
+    },
+    'old_duck_head': {
+        'name': '老鸭头形态',
+        'file_pattern': 'old_duck_head_*.csv',
+        'default_dir': 'old_duck_head'
     }
 }
 
